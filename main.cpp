@@ -69,7 +69,7 @@ struct Customer {
 vector<Room> readFileToRooms();
 vector<Customer> readFileToCustomers();
 
-void changeRoomBooked(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, bool status);
+void changeRoomBooked(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, int roomId, bool status);
 void changeRoomFilled(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, bool status);
 
 void roomMenu(vector<Room> * listRoom);
@@ -124,7 +124,9 @@ vector<Room> readFileToRooms() {
                 roomFile >> nr.price; 
                 roomFile >> nr.status;
 
-                lr.push_back(nr); 
+                if (nr.id > -1) {
+                    lr.push_back(nr); 
+                }
             }
         }
     }
@@ -144,7 +146,7 @@ void writeRoomsToFile(vector<Room> listRoom) {
             roomFile << listRoom[i].roomType << " ";
             roomFile << listRoom[i].bedType << " ";
             roomFile << listRoom[i].price << " ";
-            roomFile << listRoom[i].status << " ";
+            roomFile << listRoom[i].status;
             roomFile << "\n";
         }
     }
@@ -172,7 +174,9 @@ vector<Customer> readFileToCustomers() {
                 customerFile >> nc.checkOut;
                 customerFile >> nc.roomId;
 
-                lc.push_back(nc); 
+                if (nc.id > -1) {
+                    lc.push_back(nc); 
+                }
             }
         }
     }
@@ -194,7 +198,7 @@ void writeCustomersToFile(vector<Customer> listCustomer) {
             customerFile << listCustomer[i].days << " "; 
             customerFile << listCustomer[i].checkIn << " ";
             customerFile << listCustomer[i].checkOut << " ";
-            customerFile << listCustomer[i].roomId << " ";
+            customerFile << listCustomer[i].roomId;
             customerFile << "\n";
         }
     }
@@ -238,10 +242,9 @@ Customer * registerCustomer(vector<Room> * listRoom, vector<Customer> *listCusto
     int roomId = -1;
     cout << "\nPilih ID Kamar\t: "; cin >> roomId;
     if (roomId != -1) {
-        changeRoomBooked(listRoom, listCustomer, (*listCustomer)[(*listCustomer).size()-1].id, true);
-        (*listCustomer)[(*listCustomer).size()-1].roomId = roomId;
+        changeRoomBooked(listRoom, listCustomer,(*listCustomer)[(*listCustomer).size()-1].id, roomId, true);
 
-        cout << "\nPesan kamar berhasil\n";
+        cout << "\n\nPesan kamar selesai\n";
         pausescr();
     }
 
@@ -276,17 +279,18 @@ bool roomOcValidation(Room r, int valCase) {
     switch(valCase) {
         case 1:
             if (r.status == 1) {
-                cout << "Gagal book room, room dengan id sudah di booked sebelumnya";
+                cout << "Gagal book room, room sudah di booked sebelumnya";
                 valid = false;
             }
             break;
         case 2:
             if (r.status == 2) {
-                cout << "Gagal check in room, room dengan id sudah di check in sebelumnya";
+                cout << "Gagal check in room, room sudah di check in sebelumnya";
                 valid = false;
             }
             break;
     }
+    return valid;
 }
 
 void changeRoomFilled(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, int status) {
@@ -318,19 +322,20 @@ void changeRoomFilled(vector<Room> * listRoom, vector<Customer> * listCustomer, 
     }
 }
 
-void changeRoomBooked(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, bool status) {
+void changeRoomBooked(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, int roomId, bool status) {
     int customerIndex = findCustomerIndex(*listCustomer, idCustomer);
 
     cout << "\n";
     if (customerIndex == -1) {
         cout << "Customer dengan id: " << idCustomer << " tidak dapat ditemukan";
     } else {
-        int roomIndex = findRoomIndex(*listRoom, (*listCustomer)[customerIndex].roomId);
+        int roomIndex = findRoomIndex(*listRoom, roomId);
 
         if (roomIndex == -1) {
             cout << "Room dengan id: " << idCustomer << " tidak dapat ditemukan";
         } else {
             if (roomOcValidation((*listRoom)[roomIndex], 1)) {
+                (*listCustomer)[(*listCustomer).size()-1].roomId = roomId;
                 (*listRoom)[roomIndex].status = 1;
                 cout << "Room dengan id: " << (*listRoom)[roomIndex].id << " telah berhasil di booked oleh customer dengan id: " << idCustomer;
             }
