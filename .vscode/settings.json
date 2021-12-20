@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        ".blade.php": "blade",
+        ".tpl": "html",
+        "*.tpp": "cpp",
+        "*.tcc": "cpp",
+    },
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "C_Cpp.errorSquiggles": "Enabled",
+}
