@@ -1,9 +1,4 @@
-#include <iostream>
-#include <conio.h>
-
-#include "main.hpp"
-
-using namespace std;
+#include "hotel.hpp"
 
 // ! ALUR:
 // 0. Tambah Login (Optional)

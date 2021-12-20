@@ -1,3 +1,6 @@
+#ifndef FUNCTIONS_H_INCLUDED
+#define FUNCTIONS_H_INCLUDED
+
 #include <ctime>
 #include <iostream>
 #include <string>
@@ -8,8 +11,42 @@
 
 using namespace std;
 
-const string roomFileTxt = "roomfile.txt";
-const string customerFileTxt = "customerfile.txt";
+struct Room;
+struct Customer;
+
+void pausescr();
+const string currentDateTime();
+bool isFileEmpty(fstream &pFile);
+
+template <typename T>
+void printArray(vector<T> list);
+
+vector<Room> readFileToRooms();
+vector<Customer> readFileToCustomers();
+
+void writeRoomsToFile(vector<Room> listRoom);
+void writeCustomersToFile(vector<Customer> listCustomer);
+
+void changeRoomBooked(vector<Room> *listRoom, vector<Customer> *listCustomer, int idCustomer, int roomId, bool status);
+void changeRoomFilled(vector<Room> *listRoom, vector<Customer> *listCustomer, int idCustomer, bool status);
+
+void roomMenu(vector<Room> *listRoom);
+void mainMenu(vector<Room> *listRoom, vector<Customer> *listCustomer);
+
+int findCustomerIndex(vector<Customer> listCustomer, int idCustomer);
+int findRoomIndex(vector<Room> listRoom, int idRoom);
+bool roomOcValidation(Room r, int valCase);
+Customer *registerCustomer(vector<Room> *listRoom, vector<Customer> *listCustomer);
+
+void changeRoomFilled(vector<Room> *listRoom, vector<Customer> *listCustomer, int idCustomer, int status);
+void changeRoomBooked(vector<Room> *listRoom, vector<Customer> *listCustomer, int idCustomer, int roomId, bool status);
+void checkIn(vector<Room> *listRoom, vector<Customer> *listCustomer);
+void checkOut(vector<Room> *listRoom, vector<Customer> *listCustomer);
+void roomsSortByPrice(vector<Room> *listRoom, int bedType, int roomType);
+
+string baseDir = "data/";
+const string roomFileTxt = (baseDir + "roomfile.txt").c_str();
+const string customerFileTxt = (baseDir + "customerfile.txt").c_str();
 
 // ! INFO: Buat mapping bedType
 string bedTypeStr[] = {"Single Bed", "Twin Bed", "Double Bed"};
@@ -72,15 +109,6 @@ struct Customer
         return "ID User\t\t\t: " + to_string(id) + "\n\tNama\t\t\t: " + name + "\n\tNomor Telpon\t: " + phoneNumber + "\n\tWaktu Check In\t: " + checkIn + "\n\tWaktu Check Out\t: " + checkOut + "\n\tID Kamar\t\t: " + to_string(roomId);
     }
 };
-
-vector<Room> readFileToRooms();
-vector<Customer> readFileToCustomers();
-
-void changeRoomBooked(vector<Room> *listRoom, vector<Customer> *listCustomer, int idCustomer, int roomId, bool status);
-void changeRoomFilled(vector<Room> *listRoom, vector<Customer> *listCustomer, int idCustomer, bool status);
-
-void roomMenu(vector<Room> *listRoom);
-void mainMenu(vector<Room> *listRoom, vector<Customer> *listCustomer);
 
 void clearscr()
 {
@@ -235,7 +263,6 @@ const string currentDateTime()
     return buf;
 }
 
-// ! TODO: Implement printArray()
 template <typename T>
 void printArray(vector<T> list)
 {
@@ -245,7 +272,6 @@ void printArray(vector<T> list)
     }
 }
 
-// ! TODO: Implement registerCustomer()
 Customer *registerCustomer(vector<Room> *listRoom, vector<Customer> *listCustomer)
 {
     Customer newCustomer;
@@ -483,7 +509,7 @@ void mainMenu(vector<Room> *listRoom, vector<Customer> *listCustomer)
 
     clearscr();
     cout << "\n\n===============================\n";
-    cout << "Booking Hotel – Kelompok 5 – 1B\n\n";
+    cout << "Booking Hotel - Kelompok 5 - 1B\n\n";
     cout << "Pilih Menu (1-3)\n";
     cout << "1. Register Customer\n2. Menu Kamar\n3. Check In\n4. Check Out\n5. Keluar\n";
     cout << "\nPilihan : ";
@@ -518,140 +544,4 @@ void mainMenu(vector<Room> *listRoom, vector<Customer> *listCustomer)
     mainMenu(listRoom, listCustomer);
 }
 
-void contohProgramOrang()
-{
-    char resepsionis[30], customer[30], alamat[30], YT = 'Y';
-    string hp, checkin, checkout, ruang;
-    int kamar, bed, harga, lama, bayar, total;
-
-    // Buat array kamar kosong (belum dibuat)
-
-utama:
-    system("cls");
-    cout << "================" << endl;
-    cout << "Reservasi Hotel " << endl;
-    cout << "================" << endl
-         << endl;
-
-    // Resersionis Checkin
-    cout << "Nama resepsionis :";
-    cin >> resepsionis;
-    cout << "Nama customer :";
-    cin >> customer;
-    cout << "No. Telp :";
-    cin >> hp;
-    cout << "Alamat :";
-    cin >> alamat;
-    cout << "Lama Menginap :";
-    cin >> lama;
-    cout << "Tanggal Check In :";
-    cin >> checkin;
-    cout << "Tanggal Check Out :";
-    cin >> checkout;
-
-menu:
-    system("cls");
-
-    // Searching Kamar Kosong
-
-    // Pilih Kamar
-    cout << "Pilih Kamar" << endl;
-    cout << "1. Standard Room" << endl;
-    cout << "2. Deluxe Room" << endl;
-    cout << "3. Suite Room" << endl;
-    cout << "4. Presidential Suite Room" << endl;
-    cout << "Masukkan Pilihan = ";
-    cin >> kamar;
-    cout << endl;
-
-    if (kamar == 4)
-    {
-        harga = 1000000;
-        ruang = "Presidential Suite Room Beb";
-        goto akhir;
-    }
-
-    // Pilih Kasur
-    cout << "Pilih Kasur" << endl;
-    cout << "1.Single Bed" << endl;
-    cout << "2.Twin Bed" << endl;
-    cout << "3. Double Bed" << endl;
-
-    cout << "Masukkan Pilihan = ";
-    cin >> bed;
-    cout << endl;
-    if (kamar == 1 && bed == 1)
-    {
-        harga = 300000;
-        ruang = "Standard Room Dengan Twin Bed";
-    }
-    else if (kamar == 1 && bed == 2)
-    {
-        harga = 500000;
-        ruang = "Standard Room Dengan Twin Bed";
-    }
-
-    else if (kamar == 1 && bed == 3)
-    {
-        harga = 500000;
-        ruang = "Standart Room Dengan double Bed";
-    }
-
-    else if (kamar == 2 && bed == 1)
-    {
-        harga = 300000;
-        ruang = "Deluxe Room Dengan Twin Bed";
-    }
-    else if (kamar == 2 && bed == 2)
-    {
-        harga = 500000;
-        ruang = "Deluxe Room Dengan Twin Bed";
-    }
-
-    else if (kamar == 2 && bed == 3)
-    {
-        harga = 500000;
-        ruang = "Deluxe Room Dengan double Bed";
-    }
-
-    else if (kamar == 3 && bed == 1)
-    {
-        harga = 300000;
-        ruang = "Suite Room Dengan Twin Bed";
-    }
-    else if (kamar == 3 && bed == 2)
-    {
-        harga = 500000;
-        ruang = "Suite Room Dengan Twin Bed";
-    }
-
-    else if (kamar == 3 && bed == 3)
-    {
-        harga = 500000;
-        ruang = "Suite Room Dengan double Bed";
-    }
-    else
-    {
-        cout << "Inputan Salah" << endl;
-        // getch();
-
-        goto menu;
-    }
-
-akhir:
-    system("cls");
-
-    // Hitung Bayar Total #kalo mau ada
-    total = harga * lama;
-
-    // Ini Hasil Akhir Guys
-    cout << "Nama resepsionis :" << resepsionis << endl;
-    cout << "Nama customer :" << customer << endl;
-    cout << "No. Telp :" << hp << endl;
-    cout << "Alamat :" << alamat << endl;
-    cout << "Tipe Kamar :" << kamar << endl;
-    cout << "Lama Menginap :" << lama << endl;
-    cout << "Tanggal Check In :" << checkin << endl;
-    cout << "Tanggal Check Out :" << checkout << endl;
-    cout << "Total =" << total << endl;
-}
+#endif
