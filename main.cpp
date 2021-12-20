@@ -8,6 +8,21 @@
 
 using namespace std;
 
+struct Room;
+struct Customer;
+
+vector<Room> readFileToRooms();
+vector<Customer> readFileToCustomers();
+
+void changeRoomBooked(int idCustomer, int roomId, bool status);
+void changeRoomFilled(int idCustomer, bool status);
+
+void roomMenu();
+void mainMenu();
+
+vector<Room> listRoom;
+vector<Customer> listCustomer;
+
 const string roomFileTxt = "roomfile.txt";
 const string customerFileTxt = "customerfile.txt";
 
@@ -66,15 +81,6 @@ struct Customer {
     }
 };
 
-vector<Room> readFileToRooms();
-vector<Customer> readFileToCustomers();
-
-void changeRoomBooked(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, int roomId, bool status);
-void changeRoomFilled(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, bool status);
-
-void roomMenu(vector<Room> * listRoom);
-void mainMenu(vector<Room> * listRoom, vector<Customer> * listCustomer);
-
 void clearscr() {
     #ifdef WINDOWS
         system("cls");
@@ -95,10 +101,10 @@ void pausescr() {
 // 1. Muncul Menu Utama Aplikasi (Register Customer, Checkin, Checkout, Cari Kamar)
 // 2. Setelah selesai di menu utama akan balik lagi ke menu utama
 int main() {
-	vector<Customer> listCustomer = readFileToCustomers();
-    vector<Room> listRoom = readFileToRooms();
+	listCustomer = readFileToCustomers();
+    listRoom = readFileToRooms();
 
-    mainMenu(&listRoom, &listCustomer);
+    mainMenu();
 }
 
 bool isFileEmpty(fstream& pFile)
@@ -136,7 +142,7 @@ vector<Room> readFileToRooms() {
     return lr;
 }
 
-void writeRoomsToFile(vector<Room> listRoom) {
+void writeRoomsToFile() {
     fstream roomFile(roomFileTxt, fstream::in | fstream::out | fstream:: trunc);
     
     // roomFile.seekg(0, fstream::beg);
@@ -186,7 +192,7 @@ vector<Customer> readFileToCustomers() {
     return lc;
 }
 
-void writeCustomersToFile(vector<Customer> listCustomer) {
+void writeCustomersToFile() {
     fstream customerFile(customerFileTxt, fstream::in | fstream::out | fstream:: trunc);
     
     // customerFile.seekg(0, fstream::beg);
@@ -226,7 +232,7 @@ void printArray(vector<T> list) {
 }
 
 // ! TODO: Implement registerCustomer()
-Customer * registerCustomer(vector<Room> * listRoom, vector<Customer> *listCustomer) {
+Customer * registerCustomer() {
     Customer newCustomer;
     cout << "\nMasukan nama\t\t: ";cin >> newCustomer.name; 
     cout << "Masukan nomor telpon: ";cin >> newCustomer.phoneNumber; 
@@ -235,24 +241,27 @@ Customer * registerCustomer(vector<Room> * listRoom, vector<Customer> *listCusto
     
     cout << endl;
 
-    (*listCustomer).push_back(newCustomer);
+    listCustomer.push_back(newCustomer);
 
-    roomMenu(listRoom);
+    cout << "Data customer berhasil dibuat\n";
+    cout << "1.\t" << newCustomer.toString() << "\n\n\n";
+
+    roomMenu();
 
     int roomId = -1;
     cout << "\nPilih ID Kamar\t: "; cin >> roomId;
     if (roomId != -1) {
-        changeRoomBooked(listRoom, listCustomer,(*listCustomer)[(*listCustomer).size()-1].id, roomId, true);
+        changeRoomBooked(listCustomer[listCustomer.size()-1].id, roomId, true);
 
         cout << "\n\nPesan kamar selesai\n";
         pausescr();
     }
 
 
-    return &(*listCustomer)[(*listCustomer).size()-1];
+    return &listCustomer[listCustomer.size()-1];
 }
 
-int findCustomerIndex(vector<Customer> listCustomer, int idCustomer) {
+int findCustomerIndex( int idCustomer) {
     int findIndex = -1;
     for (int i = 0; i < listCustomer.size(); i++) {
         if (listCustomer[i].id == idCustomer) {
@@ -263,7 +272,7 @@ int findCustomerIndex(vector<Customer> listCustomer, int idCustomer) {
     return findIndex;
 }
 
-int findRoomIndex(vector<Room> listRoom, int idRoom) {
+int findRoomIndex(int idRoom) {
     int findIndex = -1;
     for (int i = 0; i < listRoom.size(); i++) {
         if (listRoom[i].id == idRoom) {
@@ -293,81 +302,81 @@ bool roomOcValidation(Room r, int valCase) {
     return valid;
 }
 
-void changeRoomFilled(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, int status) {
-    int customerIndex = findCustomerIndex(*listCustomer, idCustomer);
+void changeRoomFilled(int idCustomer, int status) {
+    int customerIndex = findCustomerIndex(idCustomer);
     
     cout << "\n";
     if (customerIndex == -1) {
         cout << "Customer dengan id: " << idCustomer << " tidak dapat ditemukan";
     } else {
-        int roomIndex = findRoomIndex(*listRoom, (*listCustomer)[customerIndex].roomId);
+        int roomIndex = findRoomIndex(listCustomer[customerIndex].roomId);
 
         if (roomIndex == -1) {
             cout << "Room dengan id: " << idCustomer << " tidak dapat ditemukan";
         } else {
-            if (roomOcValidation((*listRoom)[roomIndex], 2)) {
+            if (roomOcValidation(listRoom[roomIndex], 2)) {
                 if (status == 2) {
-                    (*listRoom)[roomIndex].status = status;
-                    (*listCustomer)[customerIndex].checkIn = currentDateTime();
+                    listRoom[roomIndex].status = status;
+                    listCustomer[customerIndex].checkIn = currentDateTime();
                 } else {
-                    (*listCustomer)[customerIndex].checkOut = currentDateTime();
-                    (*listRoom)[roomIndex].status = 0;
-                    cout << "1.\t" << (*listCustomer)[customerIndex].toString();
-                    cout << "\n\tDengan total\t:" << (*listCustomer)[customerIndex].total((*listRoom)[roomIndex].price) << "\n\n";
+                    listCustomer[customerIndex].checkOut = currentDateTime();
+                    listRoom[roomIndex].status = 0;
+                    cout << "1.\t" << listCustomer[customerIndex].toString();
+                    cout << "\n\tDengan total\t:" <<listCustomer[customerIndex].total(listRoom[roomIndex].price) << "\n\n";
                 }
 
-                cout << "Room dengan id: " << (*listRoom)[roomIndex].id << " telah berhasil di " << (status == 2 ? "Check In" : "Check Out") << " oleh customer dengan id: " << idCustomer;
+                cout << "Room dengan id: " << listRoom[roomIndex].id << " telah berhasil di " << (status == 2 ? "Check In" : "Check Out") << " oleh customer dengan id: " << idCustomer;
             }
         }
     }
 }
 
-void changeRoomBooked(vector<Room> * listRoom, vector<Customer> * listCustomer, int idCustomer, int roomId, bool status) {
-    int customerIndex = findCustomerIndex(*listCustomer, idCustomer);
+void changeRoomBooked(int idCustomer, int roomId, bool status) {
+    int customerIndex = findCustomerIndex(idCustomer);
 
     cout << "\n";
     if (customerIndex == -1) {
         cout << "Customer dengan id: " << idCustomer << " tidak dapat ditemukan";
     } else {
-        int roomIndex = findRoomIndex(*listRoom, roomId);
+        int roomIndex = findRoomIndex( roomId);
 
         if (roomIndex == -1) {
             cout << "Room dengan id: " << idCustomer << " tidak dapat ditemukan";
         } else {
-            if (roomOcValidation((*listRoom)[roomIndex], 1)) {
-                (*listCustomer)[(*listCustomer).size()-1].roomId = roomId;
-                (*listRoom)[roomIndex].status = 1;
-                cout << "Room dengan id: " << (*listRoom)[roomIndex].id << " telah berhasil di booked oleh customer dengan id: " << idCustomer;
+            if (roomOcValidation(listRoom[roomIndex], 1)) {
+                listCustomer[listCustomer.size()-1].roomId = roomId;
+                listRoom[roomIndex].status = 1;
+                cout << "Room dengan id: " << listRoom[roomIndex].id << " telah berhasil di booked oleh customer dengan id: " << idCustomer;
             }
         }
     }
 }
 
 // ! TODO: Implement checkIn()
-void checkIn(vector<Room> * listRoom, vector<Customer> * listCustomer) {
+void checkIn() {
     int idCustomer;
     cout << "Masukan id customer yang ingin check in: "; cin >> idCustomer;
 
-    changeRoomFilled(listRoom, listCustomer, idCustomer, 2);
+    changeRoomFilled(idCustomer, 2);
     pausescr();
 }
 
 // ! TODO: Implement checkOut()
-void checkOut(vector<Room> * listRoom, vector<Customer> * listCustomer) {
+void checkOut() {
     int idCustomer;
     cout << "Masukan id customer yang ingin check out: "; cin >> idCustomer;
 
-    changeRoomFilled(listRoom, listCustomer, idCustomer, 0);
+    changeRoomFilled(idCustomer, 0);
     pausescr();
 }
 
-void roomsSortByPrice(vector<Room> * listRoom, int bedType, int roomType) {
+void roomsSortByPrice( int bedType, int roomType) {
     int countRoom = 1;
     vector<Room> matchedRoom;
 
-    for (int i = 0; i < (*listRoom).size(); i++) {
-        if (((*listRoom)[i].status == 0) && ((*listRoom)[i].roomType == roomType - 1) && ((*listRoom)[i].bedType == bedType - 1)) {
-            matchedRoom.push_back((*listRoom)[i]);
+    for (int i = 0; i < listRoom.size(); i++) {
+        if ((listRoom[i].status == 0) && (listRoom[i].roomType == roomType - 1) && (listRoom[i].bedType == bedType - 1)) {
+            matchedRoom.push_back(listRoom[i]);
         }
     }
 
@@ -388,7 +397,7 @@ void roomsSortByPrice(vector<Room> * listRoom, int bedType, int roomType) {
 }
 
 // ! TODO: Implement kamarMenu()
-void roomMenu(vector<Room> * listRoom) {
+void roomMenu() {
     int roomType, bedType;
 	cout << "1. Standard Room" << endl;
 	cout << "2. Deluxe Room" << endl;
@@ -404,12 +413,12 @@ void roomMenu(vector<Room> * listRoom) {
     cout << "\n\n";
     cout << "List kamar yang sesuai pilihan:\n";
 
-    roomsSortByPrice(listRoom, roomType, bedType);
+    roomsSortByPrice(roomType, bedType);
     pausescr();
 }
 
 // ! TODO: Implement hotelMainMenu()
-void mainMenu(vector<Room> * listRoom, vector<Customer> * listCustomer) {
+void mainMenu() {
     int pilihanMenu;
 
     clearscr();
@@ -426,16 +435,16 @@ void mainMenu(vector<Room> * listRoom, vector<Customer> * listCustomer) {
     switch (pilihanMenu)
     {
         case 1:
-            registerCustomer(listRoom, listCustomer);
+            registerCustomer();
             break;
         case 2:
-            roomMenu(listRoom);
+            roomMenu();
             break;
         case 3:
-            checkIn(listRoom, listCustomer);
+            checkIn();
             break;
         case 4:
-            checkOut(listRoom, listCustomer);
+            checkOut();
             break;
         case 5:
             return;
@@ -443,10 +452,10 @@ void mainMenu(vector<Room> * listRoom, vector<Customer> * listCustomer) {
             return;
     }
 
-    writeRoomsToFile((*listRoom));
-    writeCustomersToFile((*listCustomer));
+    writeRoomsToFile();
+    writeCustomersToFile();
     
-    mainMenu(listRoom, listCustomer);
+    mainMenu();
 }
 
 void contohProgramOrang() {
