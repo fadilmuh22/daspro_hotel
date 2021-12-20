@@ -8,6 +8,8 @@
 
 using namespace std;
 
+
+// ! INFO Definisi struct sama fungsi biar bisa diakses sama fungsi lain walaupun belum ada isinya
 struct Room;
 struct Customer;
 
@@ -20,15 +22,17 @@ void changeRoomFilled(int idCustomer, bool status);
 void roomMenu();
 void mainMenu();
 
+
+// ! INFO listRoom sama listCustomer datanya diisi waktu di fungsi main dan datanya di read dari file masing-masing
 vector<Room> listRoom;
 vector<Customer> listCustomer;
 
+// ! INFO Constant nama file buat mudahin misalnya filenya ganti nama
 const string roomFileTxt = "roomfile.txt";
 const string customerFileTxt = "customerfile.txt";
 
-// ! INFO: Buat mapping bedType
+// ! INFO: Buat mapping bedType dan roomType
 string bedTypeStr[] = {"Single Bed", "Twin Bed", "Double Bed"};
-// ! INFO: Buat mapping roomType
 string roomTypeStr[] = {"Standard Room", "Deluxe Room", "Suite Room", "Presidential Suite Room"};
 
 struct Room {
@@ -81,6 +85,7 @@ struct Customer {
     }
 };
 
+// ! INFO clear screen untuk windows dan unix(linux/macos)
 void clearscr() {
     #ifdef WINDOWS
         system("cls");
@@ -107,6 +112,7 @@ int main() {
     mainMenu();
 }
 
+// ! INFO ngecek file yang mau diread apakah kosong
 bool isFileEmpty(fstream& pFile)
 {
     return pFile.peek() == ifstream::traits_type::eof();
@@ -117,10 +123,8 @@ vector<Room> readFileToRooms() {
 
     fstream roomFile(roomFileTxt, fstream::in | fstream::out);
 
-    if (roomFile.fail()) {
-        roomFile.open(roomFileTxt, fstream::in | fstream::out);
-        // roomFile.seekp(0, fstream::beg);
-    } else {
+    // ! INFO cek kalo open file gagal
+    if (!roomFile.fail()) {
         if (!isFileEmpty(roomFile)) {
             while(!roomFile.eof()) {
                 Room nr;
@@ -130,6 +134,8 @@ vector<Room> readFileToRooms() {
                 roomFile >> nr.price; 
                 roomFile >> nr.status;
 
+                // ! INFO di cek id nya -1 soalnya default value nya -1
+                // di cek sebelum di push soalnya ada case si data dari file empty tapi tetep ke push
                 if (nr.id > -1) {
                     lr.push_back(nr); 
                 }
@@ -145,7 +151,7 @@ vector<Room> readFileToRooms() {
 void writeRoomsToFile() {
     fstream roomFile(roomFileTxt, fstream::in | fstream::out | fstream:: trunc);
     
-    // roomFile.seekg(0, fstream::beg);
+    // ! INFO write ke file setelah tiap variable dikasih spasi dan setelah tiap data dikasih line baru
     for (int i = 0; i < listRoom.size(); i++) {
         if (listRoom[i].id > -1) {
             roomFile << listRoom[i].id << " ";
@@ -165,11 +171,8 @@ vector<Customer> readFileToCustomers() {
 
     fstream customerFile(customerFileTxt, fstream::in | fstream::out);
 
-    if (customerFile.fail()) {
-        customerFile.open(customerFileTxt, fstream::in | fstream::out);
-    } else {
+    if (!customerFile.fail()) {
         if (!isFileEmpty(customerFile)) {
-            // roomFile.seekp(0, fstream::beg);
             while(!customerFile.eof()) {
                 Customer nc;
                 customerFile >> nc.id; 
@@ -180,6 +183,7 @@ vector<Customer> readFileToCustomers() {
                 customerFile >> nc.checkOut;
                 customerFile >> nc.roomId;
 
+                // ! INFO mirip kaya readFileToRooms
                 if (nc.id > -1) {
                     lc.push_back(nc); 
                 }
@@ -195,7 +199,7 @@ vector<Customer> readFileToCustomers() {
 void writeCustomersToFile() {
     fstream customerFile(customerFileTxt, fstream::in | fstream::out | fstream:: trunc);
     
-    // customerFile.seekg(0, fstream::beg);
+    // ! INFO mirip kaya writeRoomsToFile
     for (int i = 0; i < listCustomer.size(); i++) {
         if (listCustomer[i].id > -1) {
             customerFile << listCustomer[i].id << " "; 
@@ -223,7 +227,7 @@ const string currentDateTime() {
 }
 
 
-// ! TODO: Implement printArray()
+// ! TODO: print array, template ini gunanya biar bisa naro vector tipe apa aja kesini, soalnya vector<Room> sama vector<Customer> itu beda tipe
 template <typename T>
 void printArray(vector<T> list) {
     for (int i = 0; i < list.size(); i++) {
@@ -231,7 +235,7 @@ void printArray(vector<T> list) {
     }
 }
 
-// ! TODO: Implement registerCustomer()
+// ! TODO: ini register customer dan daftarin ke room yang ingin di book
 Customer * registerCustomer() {
     Customer newCustomer;
     cout << "\nMasukan nama\t\t: ";cin >> newCustomer.name; 
@@ -261,6 +265,7 @@ Customer * registerCustomer() {
     return &listCustomer[listCustomer.size()-1];
 }
 
+// ! INFO: cari index dari customer yang dicari
 int findCustomerIndex( int idCustomer) {
     int findIndex = -1;
     for (int i = 0; i < listCustomer.size(); i++) {
@@ -272,6 +277,8 @@ int findCustomerIndex( int idCustomer) {
     return findIndex;
 }
 
+
+// ! INFO: cari index dari room yang dicari
 int findRoomIndex(int idRoom) {
     int findIndex = -1;
     for (int i = 0; i < listRoom.size(); i++) {
@@ -283,6 +290,7 @@ int findRoomIndex(int idRoom) {
     return findIndex;
 }
 
+// ! INFO: ini untuk validasi waktu book sama checkin/checkout room
 bool roomOcValidation(Room r, int valCase) {
     bool valid = true;
     switch(valCase) {
@@ -302,6 +310,7 @@ bool roomOcValidation(Room r, int valCase) {
     return valid;
 }
 
+// ! ini buat ubah status room yang mau di checkin/checkout, nantinya mau direfactor/diubah jadi satu fungsi sama buat book room
 void changeRoomFilled(int idCustomer, int status) {
     int customerIndex = findCustomerIndex(idCustomer);
     
@@ -330,7 +339,7 @@ void changeRoomFilled(int idCustomer, int status) {
         }
     }
 }
-
+// ! TODO: refactor fungsi ini, pake satu fungsi yang sama buat book dan checkin/checkout
 void changeRoomBooked(int idCustomer, int roomId, bool status) {
     int customerIndex = findCustomerIndex(idCustomer);
 
@@ -352,7 +361,6 @@ void changeRoomBooked(int idCustomer, int roomId, bool status) {
     }
 }
 
-// ! TODO: Implement checkIn()
 void checkIn() {
     int idCustomer;
     cout << "Masukan id customer yang ingin check in: "; cin >> idCustomer;
@@ -361,7 +369,6 @@ void checkIn() {
     pausescr();
 }
 
-// ! TODO: Implement checkOut()
 void checkOut() {
     int idCustomer;
     cout << "Masukan id customer yang ingin check out: "; cin >> idCustomer;
@@ -370,16 +377,19 @@ void checkOut() {
     pausescr();
 }
 
+// ! INFO: sorting room berdasarkan harga terkecil
 void roomsSortByPrice( int bedType, int roomType) {
     int countRoom = 1;
     vector<Room> matchedRoom;
 
+    // ! INFO: buat array baru untuk room yang sesuai berdasarkan bedType dan roomType
     for (int i = 0; i < listRoom.size(); i++) {
         if ((listRoom[i].status == 0) && (listRoom[i].roomType == roomType - 1) && (listRoom[i].bedType == bedType - 1)) {
             matchedRoom.push_back(listRoom[i]);
         }
     }
 
+    // ! INFO: bubble sort room berdasarkan harga terkecil
     for (int i = 0; i < matchedRoom.size(); i++) {
         for (int j = 0; j < matchedRoom.size()-i-1; j++) {
             if (matchedRoom[j].price > matchedRoom[j+1].price) {
@@ -396,7 +406,6 @@ void roomsSortByPrice( int bedType, int roomType) {
     }
 }
 
-// ! TODO: Implement kamarMenu()
 void roomMenu() {
     int roomType, bedType;
 	cout << "1. Standard Room" << endl;
@@ -417,7 +426,7 @@ void roomMenu() {
     pausescr();
 }
 
-// ! TODO: Implement hotelMainMenu()
+// ! TODO: Implement menu lain
 void mainMenu() {
     int pilihanMenu;
 
