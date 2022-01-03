@@ -449,7 +449,7 @@ void checkOut()
     cout << "Masukan id customer yang ingin check out: ";
     cin >> idCustomer;
 
-    changeRoomFilled(idCustomer, 0);
+    changeRoomFilled(idCustomer, 3);
     pausescr();
 }
 
