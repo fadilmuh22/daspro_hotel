@@ -262,7 +262,7 @@ void printArray(vector<T> list)
 }
 
 // ! TODO: ini register customer dan daftarin ke room yang ingin di book
-Customer *registerCustomer()
+void registerCustomer()
 {
     Customer newCustomer;
     cout << "\nMasukan nama\t\t: ";
@@ -292,8 +292,6 @@ Customer *registerCustomer()
         cout << "\n\nPesan kamar selesai\n";
         pausescr();
     }
-
-    return &listCustomer[listCustomer.size() - 1];
 }
 
 // ! INFO: cari index dari customer yang dicari
@@ -388,12 +386,10 @@ void changeRoomFilled(int idCustomer, int status)
                 {
                     listCustomer[customerIndex].checkOut = currentDateTime();
                     listRoom[roomIndex].status = 0;
+
                     cout << "1.\t" << listCustomer[customerIndex].toString();
                     cout << "\n\tDengan total\t: " << listCustomer[customerIndex].total(listRoom[roomIndex].price) << "\n\n";
-                }
-
-                if (status == 3)
-                {
+                    
                     listCustomer.erase(listCustomer.begin() + customerIndex);
                 }
 
@@ -456,7 +452,7 @@ void checkOut()
 // ! INFO: sorting room berdasarkan harga terkecil
 void roomsSortByPrice(int roomType, int bedType)
 {
-    int countRoom = 1;
+    int countRoom = 0;
     vector<Room> matchedRoom;
 
     // ! INFO: buat array baru untuk room yang sesuai berdasarkan bedType dan roomType
@@ -484,11 +480,11 @@ void roomsSortByPrice(int roomType, int bedType)
 
     for (int i = 0; i < matchedRoom.size(); i++)
     {
-        cout << countRoom << ".\t" << matchedRoom[i].toString() << "\n\n";
+        cout << countRoom+1 << ".\t" << matchedRoom[i].toString() << "\n\n";
         countRoom++;
     }
 
-    if (countRoom == 1)
+    if (countRoom == 0)
     {
         cout << "Room dengan tipe tersebut tidak tersedia silahkan pilih kembali\n\n";
         pausescr();
