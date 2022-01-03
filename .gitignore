@@ -1,4 +1,6 @@
 main
 !main.cpp
-!roomfile.txt
-!customerfile.txt
+roomfile.txt
+customerfile.txt
+Makefile
+build/
