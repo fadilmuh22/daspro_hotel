@@ -108,18 +108,6 @@ void pausescr()
     getline(cin, dummy);
 }
 
-// ! ALUR:
-// 0. Tambah Login (Optional)
-// 1. Muncul Menu Utama Aplikasi (Register Customer, Checkin, Checkout, Cari Kamar)
-// 2. Setelah selesai di menu utama akan balik lagi ke menu utama
-int main()
-{
-    listCustomer = readFileToCustomers();
-    listRoom = readFileToRooms();
-
-    mainMenu();
-}
-
 // ! INFO ngecek file yang mau diread apakah kosong
 bool isFileEmpty(fstream &pFile)
 {
@@ -557,6 +545,18 @@ void mainMenu()
 
     writeRoomsToFile();
     writeCustomersToFile();
+
+    mainMenu();
+}
+
+// ! ALUR:
+// 0. Tambah Login (Optional)
+// 1. Muncul Menu Utama Aplikasi (Register Customer, Checkin, Checkout, Cari Kamar)
+// 2. Setelah selesai di menu utama akan balik lagi ke menu utama
+int main()
+{
+    listCustomer = readFileToCustomers();
+    listRoom = readFileToRooms();
 
     mainMenu();
 }
