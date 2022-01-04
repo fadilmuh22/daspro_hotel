@@ -484,6 +484,10 @@ void roomsSortByPrice(int roomType, int bedType)
         countRoom++;
     }
 
+    if (countRoom > 0) {
+        pausescr();
+    }
+
     if (countRoom == 0)
     {
         cout << "Room dengan tipe tersebut tidak tersedia silahkan pilih kembali\n\n";
@@ -523,7 +527,7 @@ void mainMenu()
     clearscr();
     cout << "\n\n===============================\n";
     cout << "Booking Hotel – Kelompok 5 – 1B\n\n";
-    cout << "Pilih Menu (1-3)\n";
+    cout << "Pilih Menu (1-5)\n";
     cout << "1. Register Customer\n2. Menu Kamar\n3. Check In\n4. Check Out\n5. Keluar\n";
     cout << "\nPilihan : ";
     cin >> pilihanMenu;
